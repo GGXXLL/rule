@@ -15,7 +15,6 @@ import (
 )
 
 type mockDriver struct {
-	ch chan *rule.KeyValue
 }
 
 func (r *mockDriver) One(ctx context.Context, key string) ([]byte, error) {
@@ -98,7 +97,9 @@ func TestRepository(t *testing.T) {
 	assert.Equal(t, 5, repo.Count())
 
 	ctx, cancel := context.WithCancel(context.Background())
-	go repo.Watch(ctx)
+	go func() {
+		_ = repo.Watch(ctx)
+	}()
 
 	cases := []struct {
 		key     string

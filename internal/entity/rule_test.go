@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"net/http"
 	"strings"
 	"testing"
 
@@ -141,10 +140,4 @@ default:
 			c.asserts(t, err)
 		})
 	}
-}
-
-type mockClient func(req *http.Request) (*http.Response, error)
-
-func (m mockClient) Do(req *http.Request) (*http.Response, error) {
-	return m(req)
 }

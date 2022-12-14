@@ -31,7 +31,9 @@ rule:
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer cli.Delete(context.Background(), "/rule/test/foo")
+	defer func() {
+		_, _ = cli.Delete(context.Background(), "/rule/test/foo")
+	}()
 
 	time.Sleep(time.Second)
 

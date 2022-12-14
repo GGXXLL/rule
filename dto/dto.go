@@ -31,21 +31,21 @@ func (p Payload) DaysAgo(s string) int {
 	if s == "" {
 		return 0
 	}
-	return int(time.Now().Sub(p.DateTime(s)).Hours() / 24)
+	return int(time.Since(p.DateTime(s)).Hours() / 24)
 }
 
 func (p Payload) HoursAgo(s string) int {
 	if s == "" {
 		return 0
 	}
-	return int(time.Now().Sub(p.DateTime(s)).Hours())
+	return int(time.Since(p.DateTime(s)).Hours())
 }
 
 func (p Payload) MinutesAgo(s string) int {
 	if s == "" {
 		return 0
 	}
-	return int(time.Now().Sub(p.DateTime(s)).Minutes())
+	return int(time.Since(p.DateTime(s)).Minutes())
 }
 
 func (p Payload) DateTime(s string) time.Time {

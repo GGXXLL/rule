@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/GGXXLL/rule/dto"
-	"github.com/antonmedv/expr/vm"
 	"github.com/hashicorp/go-multierror"
 	"github.com/knadh/koanf"
 	"github.com/pkg/errors"
@@ -12,10 +11,8 @@ import (
 )
 
 type BasicRule struct {
-	style   string
-	data    dto.Data `yaml:"then"`
-	program *vm.Program
-	payload *dto.Payload
+	style string
+	data  dto.Data `yaml:"then"`
 }
 
 func (br *BasicRule) ValidateWithSchema(schema gojsonschema.JSONLoader) error {

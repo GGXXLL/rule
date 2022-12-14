@@ -16,7 +16,6 @@ var etcdClient *clientv3.Client
 var prefix = "rule/test/etcd"
 
 func TestMain(m *testing.M) {
-	os.Setenv("ETCD_ADDR", "127.0.0.1:2379")
 	if os.Getenv("ETCD_ADDR") == "" {
 		os.Exit(0)
 	}
@@ -25,7 +24,9 @@ func TestMain(m *testing.M) {
 		fmt.Println(err.Error())
 		return
 	}
-	defer cli.Close()
+	defer func() {
+		_ = cli.Close()
+	}()
 	ctx := context.Background()
 	_, err = cli.Put(ctx, prefix+"/a", "foo")
 	if err != nil {
@@ -72,7 +73,7 @@ func TestNewEtcdDriver_Watch(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 	kb := prefix + "/b"
 	go func() {
-		etcdClient.Put(ctx, kb, "foo")
+		_, _ = etcdClient.Put(ctx, kb, "foo")
 	}()
 
 	kv := <-kvChan

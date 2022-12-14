@@ -233,43 +233,43 @@ func (w wrappedConfigAccessor) Unmarshal(path string, o interface{}) error {
 
 func (w wrappedConfigAccessor) String(s string) string {
 	var o string
-	w.unmarshaler.Unmarshal(s, &o)
+	_ = w.unmarshaler.Unmarshal(s, &o)
 	return o
 }
 
 func (w wrappedConfigAccessor) Int(s string) int {
 	var o int
-	w.unmarshaler.Unmarshal(s, &o)
+	_ = w.unmarshaler.Unmarshal(s, &o)
 	return o
 }
 
 func (w wrappedConfigAccessor) Strings(s string) []string {
 	var o []string
-	w.unmarshaler.Unmarshal(s, &o)
+	_ = w.unmarshaler.Unmarshal(s, &o)
 	return o
 }
 
 func (w wrappedConfigAccessor) Bool(s string) bool {
 	var o bool
-	w.unmarshaler.Unmarshal(s, &o)
+	_ = w.unmarshaler.Unmarshal(s, &o)
 	return o
 }
 
 func (w wrappedConfigAccessor) Get(s string) interface{} {
 	var o interface{}
-	w.unmarshaler.Unmarshal(s, &o)
+	_ = w.unmarshaler.Unmarshal(s, &o)
 	return o
 }
 
 func (w wrappedConfigAccessor) Float64(s string) float64 {
 	var o float64
-	w.unmarshaler.Unmarshal(s, &o)
+	_ = w.unmarshaler.Unmarshal(s, &o)
 	return o
 }
 
 func (w wrappedConfigAccessor) Duration(s string) time.Duration {
 	var dur Duration
-	w.unmarshaler.Unmarshal(s, &dur)
+	_ = w.unmarshaler.Unmarshal(s, &dur)
 	return dur.Duration
 }
 
