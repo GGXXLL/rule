@@ -9,6 +9,7 @@ import (
 
 	"github.com/GGXXLL/rule/driver"
 	"github.com/GGXXLL/rule/dto"
+	"github.com/go-kit/log"
 	"github.com/stretchr/testify/assert"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
@@ -37,7 +38,7 @@ rule:
 
 	time.Sleep(time.Second)
 
-	engine, clean, err := DefaultRuleEngine(driver.NewEtcdDriver(cli, driver.WithPrefix("/rule/test")))
+	engine, clean, err := DefaultRuleEngine(driver.NewEtcdDriver(cli, driver.WithPrefix("/rule/test")), log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

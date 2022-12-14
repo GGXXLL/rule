@@ -14,11 +14,10 @@ import (
 
 // KoanfAdapter is a implementation of contract.Config based on Koanf (https://github.com/knadh/koanf).
 type KoanfAdapter struct {
-	layers     []ProviderSet
-	dispatcher contract.Dispatcher
-	delimiter  string
-	rwlock     sync.RWMutex
-	K          *koanf.Koanf
+	layers    []ProviderSet
+	delimiter string
+	rwlock    sync.RWMutex
+	K         *koanf.Koanf
 }
 
 // ProviderSet is a configuration layer formed by a parser and a provider.
@@ -45,13 +44,6 @@ func WithDelimiter(delimiter string) Option {
 	}
 }
 
-// WithDispatcher changes the default dispatcher of Koanf.
-func WithDispatcher(dispatcher contract.Dispatcher) Option {
-	return func(option *KoanfAdapter) {
-		option.dispatcher = dispatcher
-	}
-}
-
 // NewConfig creates a new *KoanfAdapter.
 func NewConfig(options ...Option) (*KoanfAdapter, error) {
 	adapter := KoanfAdapter{delimiter: "."}
@@ -61,8 +53,26 @@ func NewConfig(options ...Option) (*KoanfAdapter, error) {
 	}
 
 	adapter.K = koanf.New(adapter.delimiter)
+	if err := adapter.load(); err != nil {
+		return nil, err
+	}
 
 	return &adapter, nil
+}
+
+func (k *KoanfAdapter) load() error {
+	tmp := koanf.New(".")
+
+	for i := len(k.layers) - 1; i >= 0; i-- {
+		err := tmp.Load(k.layers[i].Provider, k.layers[i].Parser)
+		if err != nil {
+			return fmt.Errorf("unable to load config %w", err)
+		}
+	}
+	k.rwlock.Lock()
+	k.K = tmp
+	k.rwlock.Unlock()
+	return nil
 }
 
 // Unmarshal unmarshals a given key path into the given struct using the mapstructure lib.

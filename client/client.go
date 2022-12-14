@@ -31,13 +31,13 @@ func WithLogger(logger log.Logger) Option {
 	}
 }
 
-func DefaultRuleEngine(driver rule.Driver) (Engine, func(), error) {
-	repo, err := repository.NewRepository(driver)
+func DefaultRuleEngine(driver rule.Driver, logger log.Logger) (Engine, func(), error) {
+	repo, err := repository.NewRepository(driver, repository.WithLogger(logger))
 	if err != nil {
 		return nil, nil, err
 	}
 	return NewRuleEngine(
-		WithLogger(log.NewNopLogger()),
+		WithLogger(logger),
 		WithRepository(repo),
 	)
 }
