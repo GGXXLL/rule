@@ -19,30 +19,50 @@ type ruleEngine struct {
 	repository rule.Repository
 }
 
+// WithRepository replace the rule.Repository
 func WithRepository(repository rule.Repository) Option {
 	return func(c *ruleEngine) {
 		c.repository = repository
 	}
 }
 
+// WithLogger replace the log.Logger
 func WithLogger(logger log.Logger) Option {
 	return func(c *ruleEngine) {
 		c.logger = logger
 	}
 }
 
+// DefaultRuleEngine returns Engine with rule.Driver and log.Logger.
+// It will auto init rule.Repository and call Watch method.
 func DefaultRuleEngine(driver rule.Driver, logger log.Logger) (Engine, func(), error) {
 	repo, err := repository.NewRepository(driver, repository.WithLogger(logger))
 	if err != nil {
 		return nil, nil, err
 	}
-	return NewRuleEngine(
+	engine, err := NewRuleEngine(
 		WithLogger(logger),
 		WithRepository(repo),
 	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		err := repo.Watch(ctx)
+		if err != nil {
+			_ = level.Error(logger).Log("msg", fmt.Errorf("repository watch error %w", err))
+		}
+	}()
+
+	return engine, func() {
+		cancel()
+	}, nil
 }
 
-func NewRuleEngine(opt ...Option) (Engine, func(), error) {
+// NewRuleEngine returns Engine with Option.
+func NewRuleEngine(opt ...Option) (Engine, error) {
 	c := &ruleEngine{
 		logger: log.NewJSONLogger(os.Stdout),
 	}
@@ -50,18 +70,9 @@ func NewRuleEngine(opt ...Option) (Engine, func(), error) {
 		o(c)
 	}
 	if c.repository == nil {
-		return nil, nil, errors.New("repository is nil")
+		return nil, errors.New("repository is nil")
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		err := c.repository.Watch(ctx)
-		if err != nil {
-			_ = level.Error(c.logger).Log("msg", fmt.Errorf("repository watch error %w", err))
-		}
-	}()
-	return c, func() {
-		cancel()
-	}, nil
+	return c, nil
 }
 
 func (d *ruleEngine) Of(ruleName string) Tenanter {

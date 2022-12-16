@@ -7,6 +7,11 @@ import (
 	"github.com/spf13/cast"
 )
 
+const (
+	DateFormat     = "2006-01-02"
+	DateTimeFormat = "2006-01-02 15:04:05"
+)
+
 // Payload provide common query
 type Payload map[string]interface{}
 
@@ -20,7 +25,7 @@ func (p Payload) Now() time.Time {
 }
 
 func (p Payload) Date(s string) time.Time {
-	date, err := time.ParseInLocation("2006-01-02", s, time.Local)
+	date, err := time.ParseInLocation(DateFormat, s, time.Local)
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +54,7 @@ func (p Payload) MinutesAgo(s string) int {
 }
 
 func (p Payload) DateTime(s string) time.Time {
-	date, err := time.ParseInLocation("2006-01-02 15:04:05", s, time.Local)
+	date, err := time.ParseInLocation(DateTimeFormat, s, time.Local)
 	if err != nil {
 		panic(err)
 	}
@@ -62,9 +67,9 @@ func (p Payload) IsBefore(s string) bool {
 		err error
 	)
 	if len(s) == 10 {
-		t, err = time.ParseInLocation("2006-01-02", s, time.Local)
+		t, err = time.ParseInLocation(DateFormat, s, time.Local)
 	} else {
-		t, err = time.ParseInLocation("2006-01-02 15:04:05", s, time.Local)
+		t, err = time.ParseInLocation(DateTimeFormat, s, time.Local)
 	}
 	if err != nil {
 		panic(err)
@@ -78,9 +83,9 @@ func (p Payload) IsAfter(s string) bool {
 		err error
 	)
 	if len(s) == 10 {
-		t, err = time.ParseInLocation("2006-01-02", s, time.Local)
+		t, err = time.ParseInLocation(DateFormat, s, time.Local)
 	} else {
-		t, err = time.ParseInLocation("2006-01-02 15:04:05", s, time.Local)
+		t, err = time.ParseInLocation(DateTimeFormat, s, time.Local)
 	}
 	if err != nil {
 		panic(err)
@@ -104,7 +109,7 @@ func (p Payload) IsWeekend() bool {
 }
 
 func (p Payload) IsToday(s string) bool {
-	return time.Now().Format("2006-01-02") == s
+	return time.Now().Format(DateFormat) == s
 }
 
 func (p Payload) IsHourRange(begin int, end int) bool {

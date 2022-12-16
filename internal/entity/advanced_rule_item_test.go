@@ -2,6 +2,7 @@ package entity
 
 import (
 	"testing"
+	"time"
 
 	"github.com/GGXXLL/rule/dto"
 	"github.com/knadh/koanf"
@@ -20,7 +21,7 @@ func TestAdvancedRuleItem_Calculate(t *testing.T) {
 		{
 			"normal",
 			`
-style: basic
+style: advanced
 rule:
   - if: name == "foo"
     then:
@@ -40,13 +41,13 @@ rule:
 		{
 			"nest",
 			`
-style: basic
+style: advanced
 rule:
   - if: name == "foo"
     child:
       style: advanced
       rule:
-        - if: PackageName == "bar"
+        - if: addr == "bar"
           child:
             style: basic
             rule:
@@ -59,8 +60,8 @@ rule:
       i: 2
 `,
 			dto.Payload{
-				"name":        "foo",
-				"PackageName": "bar",
+				"name": "foo",
+				"addr": "bar",
 			},
 			func(t *testing.T, err error, data dto.Data) {
 				assert.NoError(t, err)
@@ -203,4 +204,57 @@ rule:
 			c.expect(t, err, ar)
 		})
 	}
+}
+
+func TestAdvancedRuleItem_Func(t *testing.T) {
+	cases := []struct {
+		name    string
+		yaml    string
+		payload dto.Payload
+		expect  func(*testing.T, error, dto.Data)
+	}{
+		{
+			"normal",
+			`
+style: advanced
+rule:
+  - if: IsToday(date)
+    then:
+      i: 1
+  - if: true
+    then:
+      i: 2
+`,
+			dto.Payload{
+				"date": time.Now().Format("2006-01-02"),
+			},
+			func(t *testing.T, err error, data dto.Data) {
+				assert.NoError(t, err)
+				assert.Equal(t, 1, data["i"])
+			},
+		},
+	}
+	for _, cc := range cases {
+		c := cc
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			ar := NewAdvancedRule()
+			k := koanf.New(".")
+			err := k.Load(rawbytes.Provider([]byte(c.yaml)), yaml.Parser())
+			if !assert.NoError(t, err) {
+				return
+			}
+			err = ar.Unmarshal(k)
+			if !assert.NoError(t, err) {
+				return
+			}
+			err = ar.Compile()
+			if !assert.NoError(t, err) {
+				return
+			}
+			result, err := ar.Calculate(c.payload)
+			c.expect(t, err, result)
+		})
+	}
+
 }
