@@ -25,17 +25,21 @@ type EtcdDriver struct {
 
 type Option func(driver *EtcdDriver)
 
+// WithPrefix specifies the path prefix to listen.
 func WithPrefix(p string) Option {
 	return func(driver *EtcdDriver) {
 		driver.prefix = p
 	}
 }
+
+// WithLimit set the clientv3.WithLimit.
 func WithLimit(limit int64) Option {
 	return func(driver *EtcdDriver) {
 		driver.limit = limit
 	}
 }
 
+// WithRegex filter the path to listen by regexp.
 func WithRegex(regexp *regexp.Regexp) Option {
 	return func(r *EtcdDriver) {
 		r.regexp = regexp
@@ -70,6 +74,7 @@ func (r *EtcdDriver) One(ctx context.Context, key string) ([]byte, error) {
 	return nil, nil
 }
 
+// All returns all kvs that conform to the specified prefix and regular expression.
 func (r *EtcdDriver) All(ctx context.Context) ([]*rule.KeyValue, error) {
 	kvs := make([]*rule.KeyValue, 0)
 	key := r.prefix

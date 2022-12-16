@@ -33,8 +33,8 @@ func WithLogger(logger log.Logger) Option {
 	}
 }
 
-// DefaultRuleEngine returns Engine with rule.Driver and log.Logger.
-// It will auto init rule.Repository and call Watch method.
+// DefaultRuleEngine will auto init rule.Repository and call its Watch method.
+// returns the Engine and clean func for stop Watch.
 func DefaultRuleEngine(driver rule.Driver, logger log.Logger) (Engine, func(), error) {
 	repo, err := repository.NewRepository(driver, repository.WithLogger(logger))
 	if err != nil {

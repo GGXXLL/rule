@@ -27,8 +27,6 @@ type Driver interface {
 	Watch(ctx context.Context) KvWatchChan
 }
 
-type RulerOption func()
-
 type Ruler interface {
 	Unmarshal(reader *koanf.Koanf) error
 	Calculate(payload interface{}) (dto.Data, error)
